@@ -9,6 +9,7 @@ import { Toaster } from 'sonner';
 import AdminCategoriesPage from '@/pages/admin/AdminCategory';
 import AdminProductList from '@/pages/admin/Products/AdminProductList';
 import AdminProductForm from '@/pages/admin/Products/AdminProductForm';
+import AdminProductEditForm from '@/pages/admin/Products/AdminProductEditForm';
 
 export function AppRoutes() {
   return (
@@ -27,6 +28,8 @@ export function AppRoutes() {
           <Route path="categories" element={<AdminCategoriesPage />} />
           <Route path="products" element={<AdminProductList />} />
           <Route path="products/new" element={<AdminProductForm />} />
+          <Route path="/admin/products/:id" element={<AdminProductEditForm />} />
+
         </Route>
       </Routes>
       <Toaster position="top-right" richColors />

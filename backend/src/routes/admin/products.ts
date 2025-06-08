@@ -109,7 +109,7 @@ router.post('/', verifyAdmin, upload.array('images', 10), createProduct);
  *       500:
  *         description: Error interno del servidor
  */
-router.put('/:id', verifyAdmin, updateProduct);
+router.put('/:id', verifyAdmin, upload.array('images'), updateProduct);
 
 /**
  * @swagger

@@ -1,4 +1,4 @@
-import { baseApiUrl } from "./const";
+import { baseApiUrl } from './const';
 
 export const getAllProducts = async () => {
   try {
@@ -10,6 +10,15 @@ export const getAllProducts = async () => {
   }
 };
 
+export const getProductById = async (id: string) => {
+  try {
+    const res = await fetch(`${baseApiUrl}/products/${id}`);
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    return { success: false };
+  }
+};
 
 export const createProduct = async (formData: FormData) => {
   const token = localStorage.getItem('token');
@@ -25,8 +34,44 @@ export const createProduct = async (formData: FormData) => {
 
     return await res.json();
   } catch (err) {
-    console.error(err);
+    console.error('Error creating product:', err);
     return { success: false, error: 'Error de red' };
   }
 };
 
+export const updateProduct = async (id: string, formData: FormData) => {
+  const token = localStorage.getItem('token');
+
+  try {
+    const res = await fetch(`${baseApiUrl}/admin/products/${id}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+
+    return await res.json();
+  } catch (err) {
+    console.error('Error updating product:', err);
+    return { success: false, error: 'Error de red' };
+  }
+};
+
+export const deleteProduct = async (id: string) => {
+  const token = localStorage.getItem('token');
+
+  try {
+    const res = await fetch(`${baseApiUrl}/admin/products/${id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return await res.json();
+  } catch (err) {
+    console.error('Error deleting product:', err);
+    return { success: false, error: 'Error de red' };
+  }
+};

@@ -107,8 +107,8 @@ export const getProductById = async (req: Request, res: Response) => {
 export const updateProduct = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
-
+    
+    // Validar ID
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({
         success: false,
@@ -116,9 +116,43 @@ export const updateProduct = async (req: Request, res: Response) => {
       });
     }
 
-    const updatedProduct = await Product.findByIdAndUpdate(id, updates, {
-      new: true,
-    });
+    const updateData: any = {
+      name: req.body.name,
+      description: req.body.description,
+      price: req.body.price,
+      stock: req.body.stock,
+    };
+
+    // Procesar categorías
+    if (req.body['categories[]']) {
+      updateData.categories = Array.isArray(req.body['categories[]']) 
+        ? req.body['categories[]'] 
+        : [req.body['categories[]']];
+    }
+
+    // Mantener las imágenes actuales
+    const currentImages = req.body['currentImages[]'];
+    if (currentImages) {
+      updateData.images = Array.isArray(currentImages) ? currentImages : [currentImages];
+    }
+
+    // Agregar nuevas imágenes si las hay
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+      const newImagePaths = (req.files as Express.Multer.File[]).map(
+        file => `/uploads/${file.filename}`
+      );
+      updateData.images = updateData.images 
+        ? [...updateData.images, ...newImagePaths]
+        : newImagePaths;
+    }
+
+    console.log('Datos a actualizar:', updateData);
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id, 
+      updateData,
+      { new: true }
+    ).populate('categories');
 
     if (!updatedProduct) {
       res.status(404).json({

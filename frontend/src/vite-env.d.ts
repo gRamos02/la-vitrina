@@ -20,7 +20,7 @@ export interface Product {
   price: number;
   stock?: number;
   images: string[];
-  categories: string[]; // puedes mejorar esto con Category[]
+  categories?: Array<{ _id: string; name: string } | string>;
 }
 
 
