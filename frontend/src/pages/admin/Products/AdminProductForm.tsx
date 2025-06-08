@@ -9,13 +9,15 @@ import { createProduct } from '@/api/products';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getAllCategories } from '@/api/categories';
+import { MultiSelect } from '@/components/multi-select';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
   description: z.string().optional(),
   price: z.coerce.number().min(0),
-  images: z.string().array().optional(),
+  stock: z.coerce.number().min(0, 'El stock no puede ser negativo'),
   categories: z.string().array().optional(),
+  images: z.any(), // Permitimos cualquier cosa, validamos en submit
 });
 
 type ProductFormValues = z.infer<typeof schema>;
@@ -24,6 +26,8 @@ export default function AdminProductForm() {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(schema),
@@ -31,7 +35,7 @@ export default function AdminProductForm() {
       name: '',
       description: '',
       price: 0,
-      images: [],
+      stock: 0,
       categories: [],
     },
   });
@@ -45,8 +49,26 @@ export default function AdminProductForm() {
     });
   }, []);
 
+  const categoryOptions = allCategories.map((cat) => ({
+    label: cat.name,
+    value: cat._id,
+  }));
+
   const onSubmit = async (data: ProductFormValues) => {
-    const response = await createProduct(data);
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('description', data.description || '');
+    formData.append('price', String(data.price));
+    formData.append('stock', String(data.stock));
+
+    data.categories?.forEach((catId) => formData.append('categories[]', catId));
+
+    const imageFiles = (watch('images') as FileList | null) || [];
+    Array.from(imageFiles).forEach((file) => {
+      formData.append('images', file); // Backend debe aceptar `images` como arreglo
+    });
+
+    const response = await createProduct(formData);
     if (response.success) {
       navigate('/admin/products');
     } else {
@@ -78,34 +100,37 @@ export default function AdminProductForm() {
         </div>
 
         <div>
-          <Label htmlFor="images">URLs de imágenes (una por línea)</Label>
-          <Textarea
+          <Label htmlFor="stock">Stock</Label>
+          <Input
+            type="number"
+            id="stock"
+            {...register('stock')}
+            min="0"
+            step="1"
+          />
+          {errors.stock && <p className="text-red-500 text-sm">{errors.stock.message}</p>}
+        </div>
+
+        <div>
+          <Label htmlFor="images">Imágenes del producto</Label>
+          <Input
             id="images"
+            type="file"
+            multiple
+            accept="image/*"
             {...register('images')}
-            onBlur={(e) =>
-              (e.target.value = e.target.value
-                .split('\n')
-                .map((line) => line.trim())
-                .filter(Boolean)
-                .join('\n'))
-            }
           />
         </div>
 
         <div>
           <Label htmlFor="categories">Categorías</Label>
-          <select
-            id="categories"
-            multiple
-            className="w-full border p-2 rounded-md"
-            {...register('categories')}
-          >
-            {allCategories.map((cat) => (
-              <option key={cat._id} value={cat._id}>
-                {cat.name}
-              </option>
-            ))}
-          </select>
+          <MultiSelect
+            options={categoryOptions}
+            placeholder="Selecciona las categorías"
+            onValueChange={(values) => {
+              setValue('categories', values);
+            }}
+          />
         </div>
 
         <Button type="submit" className="w-full">

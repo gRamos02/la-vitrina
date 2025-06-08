@@ -7,6 +7,7 @@ import {
   getProductById
 } from '../../controllers/products';
 import { verifyAdmin } from '../../middlewares/auth';
+import { upload } from '../../middlewares/upload';
 
 const router = Router();
 
@@ -63,7 +64,7 @@ const router = Router();
  *       500:
  *         description: Error interno del servidor
  */
-router.post('/', verifyAdmin, createProduct);
+router.post('/', verifyAdmin, upload.array('images', 10), createProduct);
 
 /**
  * @swagger

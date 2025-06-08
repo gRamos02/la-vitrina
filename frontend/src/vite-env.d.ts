@@ -18,6 +18,7 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  stock?: number;
   images: string[];
   categories: string[]; // puedes mejorar esto con Category[]
 }

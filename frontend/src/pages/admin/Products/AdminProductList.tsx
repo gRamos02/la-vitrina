@@ -1,10 +1,40 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Product } from '@/vite-env';
 import { getAllProducts } from '@/api/products';
+
+// Definimos las columnas
+const columns = [
+  {
+    accessorKey: 'name',
+    header: 'Nombre',
+  },
+  {
+    accessorKey: 'description',
+    header: 'Descripción',
+  },
+  {
+    accessorKey: 'price',
+    header: 'Precio',
+    cell: ({ row }: { row: any }) => (
+      <div>${row.original.price}</div>
+    ),
+  },
+  {
+    accessorKey: 'stock',
+    header: 'Stock',
+  },
+];
 
 export default function AdminProductList() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,7 +61,7 @@ export default function AdminProductList() {
 
   return (
     <div className="p-6 space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-4">
         <Input
           placeholder="Buscar productos..."
           value={search}
@@ -43,16 +73,34 @@ export default function AdminProductList() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((product) => (
-          <Card key={product._id}>
-            <CardContent className="p-4 space-y-2">
-              <h2 className="font-semibold text-lg">{product.name}</h2>
-              <p className="text-sm text-muted-foreground">{product.description}</p>
-              <p className="text-sm font-medium text-primary">${product.price}</p>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              {columns.map((column) => (
+                <TableHead key={column.accessorKey}>
+                  {column.header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.map((product) => (
+              <TableRow 
+                key={product._id}
+                onClick={() => navigate(`/admin/products/${product._id}`)}
+                className="cursor-pointer hover:bg-muted"
+              >
+                <TableCell>{product.name}</TableCell>
+                <TableCell className="text-muted-foreground">
+                  {product.description}
+                </TableCell>
+                <TableCell>${product.price}</TableCell>
+                <TableCell>{product.stock}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );

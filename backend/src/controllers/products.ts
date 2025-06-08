@@ -8,14 +8,20 @@ import { ApiResponse } from '../types';
  */
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, description, price, images, categories } = req.body;
+    const { name, description, price, categories, stock } = req.body;
+
+    // Archivos subidos por multer
+    const uploadedImages = req.files as Express.Multer.File[];
+
+    const imagePaths = uploadedImages.map((file) => `/uploads/${file.filename}`);
 
     const newProduct = new Product({
       name,
       description,
       price,
-      images,
+      images: imagePaths,
       categories,
+      stock: stock || 0,
     });
 
     const savedProduct = await newProduct.save();

@@ -11,17 +11,16 @@ export const getAllProducts = async () => {
 };
 
 
-export const createProduct = async (data: any) => {
+export const createProduct = async (formData: FormData) => {
   const token = localStorage.getItem('token');
 
   try {
     const res = await fetch(`${baseApiUrl}/admin/products`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(data),
+      body: formData,
     });
 
     return await res.json();
@@ -30,3 +29,4 @@ export const createProduct = async (data: any) => {
     return { success: false, error: 'Error de red' };
   }
 };
+
