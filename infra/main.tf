@@ -50,7 +50,10 @@ resource "oci_core_subnet" "vcn_subnet" {
   compartment_id    = var.tenancy_ocid
   vcn_id            = oci_core_virtual_network.vcn.id
   display_name      = "la-vitrina-subnet"
-  security_list_ids = [oci_core_virtual_network.vcn.default_security_list_id]
+  security_list_ids = [
+    oci_core_virtual_network.vcn.default_security_list_id,
+    oci_core_security_list.vitrina_sec_list.id
+  ]
   prohibit_public_ip_on_vnic = false
   prohibit_internet_ingress = false
 }
