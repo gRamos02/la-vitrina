@@ -2,7 +2,7 @@ import React from 'react';
 import './styles.css';
 import { useAtom } from 'jotai';
 import { categoriesAtom } from '../../atoms';
-import { fetchCategories } from '../../api/categories';
+import { getAllCategories } from '../../api/categories';
 import { Link } from 'react-router-dom';
 import type { Category } from '@/vite-env';
 
@@ -13,7 +13,7 @@ const HomePage: React.FC = () => {
   const handleRefresh = async () => {
     try {
       setIsLoading(true);
-      const newCategories = await fetchCategories();
+      const newCategories = await getAllCategories();
       setCategories(newCategories);
     } catch (error) {
       console.error('Error refreshing categories:', error);
@@ -48,7 +48,7 @@ const HomePage: React.FC = () => {
 
       <ul>
         {(categories as Category[]).map((cat) => (
-          <li key={cat.id}>{cat.name}</li>
+          <li key={cat._id}>{cat.name}</li>
         ))}
       </ul>
     </>

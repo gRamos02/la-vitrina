@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import app from './server';
 import dotenv from 'dotenv';
+import { initializeAdmin } from './config/setup';
 
 dotenv.config(); // Cargar variables de entorno desde .env
 
@@ -11,8 +12,11 @@ console.log(PORT, MONGODB_URI);
 
 // Conexinn a MongoDB
 mongoose.connect(MONGODB_URI)
-  .then(() => {
+  .then(async () => {
     console.log('🍃 Conectado a MongoDB');
+    
+    // Inicializar usuario admin
+    await initializeAdmin();
     
     // Iniciar el servidor solo después de conectar a MongoDB
     app.listen(PORT, () => {

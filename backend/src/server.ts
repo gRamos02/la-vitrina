@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import mainRouter from './routes';
+import { setupSwagger } from './config/swagger';
 
 const app = express();
 
@@ -16,7 +17,7 @@ const corsOptions = {
 app.use(morgan('dev')); // Agregar logging
 app.use(cors(corsOptions));
 app.use(express.json());
-
+setupSwagger(app)
 // Rutas
 app.use('/api', mainRouter);
 

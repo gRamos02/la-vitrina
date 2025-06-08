@@ -1,16 +1,27 @@
 /// <reference types="vite/client" />
 export interface Category {
-  id: number;
+  _id: string;
   name: string;
-  parentId: number | null;
+  description?: string;
+  icon?: string;
+  parent?: Category | string | null;
 }
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
   message?: string;
 }
+
+export interface Product {
+  _id: string;
+  name: string;
+  description: string;
+  price: number;
+  images: string[];
+  categories: string[]; // puedes mejorar esto con Category[]
+}
+
 
 export interface PaginatedResponse<T> extends ApiResponse {
   data: {

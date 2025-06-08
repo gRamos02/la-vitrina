@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import categoryRoutes from './categories';
+import adminRoutes from './admin';
+import productsRoutes from './products';
 
 const router = Router();
 
@@ -12,7 +14,9 @@ router.get('/healthcheck', (_req, res) => {
 });
 
 // Rutas de la API
+router.use('/admin', adminRoutes);
 router.use('/categories', categoryRoutes);
+router.use('/products', productsRoutes);
 
 // Manejador de rutas no encontradas
 // router.use(':', (_req, res) => {
