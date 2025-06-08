@@ -2,20 +2,22 @@ version: "3.8"
 
 services:
   frontend:
-    build:
-      context: ./frontend
+    build: ./frontend
     ports:
       - "80:80"
+    env_file: 
+      - ./frontend/.env
+    restart: unless-stopped
     depends_on:
       - backend
 
   backend:
-    build:
-      context: ./backend
+    build: ./backend
     ports:
       - "3000:3000"
-    environment:
-      - MONGODB_URI=mongodb://mongo:27017/la_vitrina
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped 
     depends_on:
       - mongo
 
