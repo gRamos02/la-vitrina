@@ -2,6 +2,7 @@ import React from 'react';
 import { useAtom } from 'jotai';
 import { categoriesAtom } from '../../atoms';
 import './styles.css';
+import type { Category } from '@/vite-env';
 
 const SecondPage: React.FC = () => {
   const [categories] = useAtom(categoriesAtom);
@@ -24,7 +25,7 @@ const SecondPage: React.FC = () => {
           <p>No hay categorías cargadas</p>
         ) : (
           <ul>
-            {categories.map(category => (
+            {(categories as Category[]).map((category) => (
               <li key={category.id}>
                 <strong>{category.name}</strong>
                 {category.parentId && (

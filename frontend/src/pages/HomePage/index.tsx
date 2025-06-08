@@ -4,6 +4,7 @@ import { useAtom } from 'jotai';
 import { categoriesAtom } from '../../atoms';
 import { fetchCategories } from '../../api/categories';
 import { Link } from 'react-router-dom';
+import type { Category } from '@/vite-env';
 
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useAtom(categoriesAtom);
@@ -46,7 +47,7 @@ const HomePage: React.FC = () => {
       </div>
 
       <ul>
-        {categories.map((cat: any) => (
+        {(categories as Category[]).map((cat) => (
           <li key={cat.id}>{cat.name}</li>
         ))}
       </ul>

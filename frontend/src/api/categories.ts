@@ -1,5 +1,4 @@
-import type { Category } from '../../../backend/src/types/categories';
-import type { ApiResponse } from '../../../backend/src/types/api';
+import type { ApiResponse, Category } from "@/vite-env";
 
 export const fetchCategories = async (): Promise<Category[]> => {
   try {
