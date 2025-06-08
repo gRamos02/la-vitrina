@@ -1,7 +1,28 @@
+import mongoose from 'mongoose';
 import app from './server';
 
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/la-vitrina';
+const PORT = process.env.PORT || 3001;
 
-const PORT = Number(process.env.PORT) || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor escuchando en puerto ${PORT}`);
+// Conexinn a MongoDB
+mongoose.connect(MONGODB_URI)
+  .then(() => {
+    console.log('🍃 Conectado a MongoDB');
+    
+    // Iniciar el servidor solo después de conectar a MongoDB
+    app.listen(PORT, () => {
+      console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error('Error conectando a MongoDB:', error);
+    process.exit(1);
+  });
+
+mongoose.connection.on('error', (error) => {
+  console.error('Error de MongoDB:', error);
+});
+
+mongoose.connection.on('disconnected', () => {
+  console.warn('❌ Desconectado de MongoDB');
 });
