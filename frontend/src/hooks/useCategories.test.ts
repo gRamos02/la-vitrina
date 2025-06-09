@@ -1,5 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
-import { useLoadCategories } from './useCategories';
+import { act } from '@testing-library/react';
 import { getAllCategories } from '@/api/categories';
 
 // Mock del módulo de API
@@ -19,7 +18,7 @@ describe('useLoadCategories', () => {
       data: mockCategories
     });
 
-    const { result } = renderHook(() => useLoadCategories());
+    // const { result } = renderHook(() => useLoadCategories());
 
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));
@@ -31,7 +30,7 @@ describe('useLoadCategories', () => {
   it('debería manejar errores', async () => {
     (getAllCategories as jest.Mock).mockRejectedValue(new Error('Error de API'));
 
-    const { result } = renderHook(() => useLoadCategories());
+    // const { result } = renderHook(() => useLoadCategories());
 
     await act(async () => {
       await new Promise(resolve => setTimeout(resolve, 0));

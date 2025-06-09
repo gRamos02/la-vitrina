@@ -103,26 +103,26 @@ export default function AdminCategoriesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    setIsLoading(true);
-    try {
-      const response = await deleteCategory(id);
-      if (response.success) {
-        toast.success(response.message);
-        await fetchCategories();
-      } else {
-        toast.error(response.message, {
-          description: response.error
-        });
-      }
-    } catch (error: any) {
-      toast.error('Error al eliminar la categoría', {
-        description: error.message || 'Ocurrió un error inesperado'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // const handleDelete = async (id: string) => {
+  //   setIsLoading(true);
+  //   try {
+  //     const response = await deleteCategory(id);
+  //     if (response.success) {
+  //       toast.success(response.message);
+  //       await fetchCategories();
+  //     } else {
+  //       toast.error(response.message, {
+  //         description: response.error
+  //       });
+  //     }
+  //   } catch (error: any) {
+  //     toast.error('Error al eliminar la categoría', {
+  //       description: error.message || 'Ocurrió un error inesperado'
+  //     });
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const renderCategoryTree = (cats: Category[], parentId: string | null = null, level = 0) => {
     const children = cats.filter(cat => {

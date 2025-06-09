@@ -8,7 +8,6 @@ import {
   ShoppingCart,
   Heart,
   RefreshCw,
-  Star,
   ChevronLeft,
   ChevronRight as ChevronRightIcon
 } from 'lucide-react';

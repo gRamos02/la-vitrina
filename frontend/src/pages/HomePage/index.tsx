@@ -6,14 +6,10 @@ import { getAllBanners } from '@/api/banners'; // Añadir este import
 import { getAllProducts } from '@/api/products';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { 
   ChevronLeft, 
   ChevronRight, 
-  Star, 
-  Heart, 
-  ShoppingCart, 
   Package,
   Users,
   Award,
@@ -24,44 +20,6 @@ import {
 import type { Category, Product } from '@/vite-env';
 import { ProductCard } from '@/components/ProductCard';
 
-// Mock data para productos destacados
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Figura Naruto Uzumaki",
-    price: 1299,
-    originalPrice: 1599,
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    category: "Anime",
-    rating: 4.8,
-    isNew: true
-  },
-  {
-    id: 2,
-    name: "Manga One Piece Vol. 105",
-    price: 159,
-    image: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=400&h=400&fit=crop",
-    category: "Manga",
-    rating: 4.9
-  },
-  {
-    id: 3,
-    name: "Cartas Pokémon Booster Pack",
-    price: 89,
-    image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop",
-    category: "Cartas",
-    rating: 4.7,
-    isHot: true
-  },
-  {
-    id: 4,
-    name: "Funko Pop Spider-Man",
-    price: 349,
-    image: "https://images.unsplash.com/photo-1608889335941-32ac5f2041c9?w=400&h=400&fit=crop",
-    category: "Funko",
-    rating: 4.6
-  }
-];
 
 // Mover los banners mock a una constante separada
 const mockBanners = [
@@ -108,7 +66,7 @@ const HomePage: React.FC = () => {
   
   const [banners, setBanners] = useState<Banner[]>(mockBanners); // Inicializar con mock data
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [favorites, setFavorites] = useState<string[]>([]);
+  const [favorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [isLoadingProducts, setIsLoadingProducts] = useState(false);
@@ -189,13 +147,13 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const toggleFavorite = (productId: string) => {
-    setFavorites(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
-  };
+  // const toggleFavorite = (productId: string) => {
+  //   setFavorites(prev => 
+  //     prev.includes(productId) 
+  //       ? prev.filter(id => id !== productId)
+  //       : [...prev, productId]
+  //   );
+  // };
 
   const nextBanner = () => {
     setCurrentBanner((prev) => (prev + 1) % banners.length);
