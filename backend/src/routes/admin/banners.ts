@@ -1,13 +1,13 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   createBanner,
   updateBanner,
   deleteBanner,
   getAllBanners,
-  getBannerById
-} from '../../controllers/banners';
-import { verifyAdmin } from '../../middlewares/auth';
-import { upload } from '../../middlewares/upload';
+  getBannerById,
+} from "../../controllers/banners";
+import { verifyAdmin } from "../../middlewares/auth";
+import { handleUploadError, upload } from "../../middlewares/upload";
 
 const router = Router();
 
@@ -71,7 +71,13 @@ const router = Router();
  *       500:
  *         description: Error interno del servidor
  */
-router.post('/', verifyAdmin, upload.single('image'), createBanner);
+router.post(
+  "/",
+  verifyAdmin,
+  upload.single("image"),
+  handleUploadError,
+  createBanner
+);
 
 /**
  * @swagger
@@ -125,7 +131,13 @@ router.post('/', verifyAdmin, upload.single('image'), createBanner);
  *       500:
  *         description: Error interno del servidor
  */
-router.put('/:id', verifyAdmin, upload.single('image'), updateBanner);
+router.put(
+  "/:id",
+  verifyAdmin,
+  upload.single("image"),
+  handleUploadError,
+  updateBanner
+);
 
 /**
  * @swagger
@@ -150,6 +162,6 @@ router.put('/:id', verifyAdmin, upload.single('image'), updateBanner);
  *       500:
  *         description: Error interno del servidor
  */
-router.delete('/:id', verifyAdmin, deleteBanner);
+router.delete("/:id", verifyAdmin, deleteBanner);
 
 export default router;

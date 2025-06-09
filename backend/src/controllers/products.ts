@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import Product from '../models/Product';
 import { ApiResponse } from '../types';
+import path from 'path';
+
+// Configura la ruta de uploads como una constante
+const UPLOADS_DIR = path.join(__dirname, '..', '..', 'uploads');
 
 /**
  * Crear un nuevo producto
@@ -24,7 +28,13 @@ export const createProduct = async (req: Request, res: Response) => {
 
     // Archivos subidos por multer
     const uploadedImages = req.files as Express.Multer.File[];
-    const imagePaths = uploadedImages.map((file) => `/uploads/${file.filename}`);
+    // Usar ruta absoluta para las imágenes
+    const imagePaths = uploadedImages.map((file) => {
+      const relativePath = `/uploads/${file.filename}`;
+      // Asegurarse que el archivo se guarde en la ruta correcta
+      const absolutePath = path.join(UPLOADS_DIR, file.filename);
+      return relativePath;
+    });
 
     // Procesar categorías y tags de forma segura
     let parsedCategories: string[] = [];

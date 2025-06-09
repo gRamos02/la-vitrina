@@ -1,13 +1,13 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
   createProduct,
   updateProduct,
   deleteProduct,
   getAllProducts,
-  getProductById
-} from '../../controllers/products';
-import { verifyAdmin } from '../../middlewares/auth';
-import { upload } from '../../middlewares/upload';
+  getProductById,
+} from "../../controllers/products";
+import { verifyAdmin } from "../../middlewares/auth";
+import { handleUploadError, upload } from "../../middlewares/upload";
 
 const router = Router();
 
@@ -64,7 +64,13 @@ const router = Router();
  *       500:
  *         description: Error interno del servidor
  */
-router.post('/', verifyAdmin, upload.array('images', 10), createProduct);
+router.post(
+  "/",
+  verifyAdmin,
+  upload.array("images", 10),
+  handleUploadError,
+  createProduct
+);
 
 /**
  * @swagger
@@ -109,7 +115,13 @@ router.post('/', verifyAdmin, upload.array('images', 10), createProduct);
  *       500:
  *         description: Error interno del servidor
  */
-router.put('/:id', verifyAdmin, upload.array('images'), updateProduct);
+router.put(
+  "/:id",
+  verifyAdmin,
+  upload.array("images"),
+  handleUploadError,
+  updateProduct
+);
 
 /**
  * @swagger
@@ -134,6 +146,6 @@ router.put('/:id', verifyAdmin, upload.array('images'), updateProduct);
  *       500:
  *         description: Error interno del servidor
  */
-router.delete('/:id', verifyAdmin, deleteProduct);
+router.delete("/:id", verifyAdmin, deleteProduct);
 
 export default router;
