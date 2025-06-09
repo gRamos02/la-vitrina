@@ -11,14 +11,21 @@ import { getAllCategories } from '@/api/categories';
 import { getProductById, updateProduct } from '@/api/products';
 import { MultiSelect } from '@/components/multi-select';
 import { X } from 'lucide-react'; // Importar ícono para eliminar imágenes
+import { Checkbox } from '@/components/ui/checkbox';
 
 const schema = z.object({
   name: z.string().min(1, 'Nombre requerido'),
   description: z.string().optional(),
   price: z.coerce.number().min(0),
+  originalPrice: z.coerce.number().min(0).optional(),
   stock: z.coerce.number().min(0, 'El stock no puede ser negativo'),
   categories: z.string().array().optional(),
   images: z.any(),
+  isActive: z.boolean(),
+  isFeatured: z.boolean(),
+  isHot: z.boolean(),
+  featuredOrder: z.coerce.number().min(0).optional(),
+  tags: z.string().array().optional(),
 });
 
 type ProductFormValues = z.infer<typeof schema>;
@@ -46,39 +53,35 @@ export default function AdminEditProductForm() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Cargar categorías primero
         const categoriesRes = await getAllCategories();
         setAllCategories(categoriesRes);
 
-        // Luego cargar el producto si hay ID
         if (id) {
           const productRes = await getProductById(id);
-          console.log('Respuesta completa del producto:', productRes); // Log completo
 
           if (productRes.success && productRes.data) {
             const product = productRes.data;
-
-            // Asegurarnos de que las imágenes existen y son un array
             const productImages = Array.isArray(product.images) ? product.images : [];
-
-            // Guardar las imágenes actuales
             setCurrentImages(productImages);
             
-            // Extraer IDs de categorías
             const categoryIds = product.categories?.map((cat: { _id: any; }) => 
               typeof cat === 'string' ? cat : cat._id
             ) || [];
 
-            // Actualizar estados
             setSelectedCategories(categoryIds);
             
-            // Actualizar formulario
             reset({
               name: product.name,
               description: product.description,
               price: product.price,
+              originalPrice: product.originalPrice,
               stock: product.stock,
               categories: categoryIds,
+              isActive: Boolean(product.isActive),
+              isFeatured: Boolean(product.isFeatured),
+              isHot: Boolean(product.isHot),
+              featuredOrder: product.featuredOrder,
+              tags: product.tags || [],
               images: [], // Resetear las imágenes nuevas
             });
           }
@@ -108,11 +111,21 @@ export default function AdminEditProductForm() {
     formData.append('name', data.name);
     formData.append('description', data.description || '');
     formData.append('price', String(data.price));
+    if (data.originalPrice) formData.append('originalPrice', String(data.originalPrice));
     formData.append('stock', String(data.stock));
+    formData.append('isActive', String(data.isActive));
+    formData.append('isFeatured', String(data.isFeatured));
+    formData.append('isHot', String(data.isHot));
+    if (data.featuredOrder) formData.append('featuredOrder', String(data.featuredOrder));
     
-    // Agregar categorías seleccionadas
+    // Agregar categorías
     selectedCategories.forEach((catId) => {
       formData.append('categories[]', catId);
+    });
+
+    // Agregar tags
+    data.tags?.forEach((tag) => {
+      formData.append('tags[]', tag);
     });
 
     // Agregar imágenes actuales
@@ -120,7 +133,7 @@ export default function AdminEditProductForm() {
       formData.append('currentImages[]', img);
     });
 
-    // Agregar nuevas imágenes solo si se seleccionaron
+    // Agregar nuevas imágenes
     const imageFiles = (watch('images') as FileList | null);
     if (imageFiles && imageFiles.length > 0) {
       Array.from(imageFiles).forEach((file) => {
@@ -221,6 +234,73 @@ export default function AdminEditProductForm() {
                 setValue('categories', [...values]); // Actualizar el valor del formulario
               }}
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="originalPrice">Precio Original (opcional)</Label>
+              <Input type="number" step="0.01" id="originalPrice" {...register('originalPrice')} />
+            </div>
+            <div>
+              <Label htmlFor="featuredOrder">Orden destacado</Label>
+              <Input
+                type="number"
+                id="featuredOrder"
+                {...register('featuredOrder')}
+                min="0"
+                step="1"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="tags">Tags (separados por coma)</Label>
+              <Input
+                id="tags"
+                placeholder="anime, figura, colección"
+                {...register('tags')}
+                onChange={(e) => {
+                  const tags = e.target.value.split(',').map(tag => tag.trim());
+                  setValue('tags', tags);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="flex space-x-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isActive"
+                checked={watch('isActive')}
+                onCheckedChange={(checked) => {
+                  setValue('isActive', checked === true);
+                }}
+              />
+              <Label htmlFor="isActive">Activo</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isFeatured"
+                checked={watch('isFeatured')}
+                onCheckedChange={(checked) => {
+                  setValue('isFeatured', checked === true);
+                }}
+              />
+              <Label htmlFor="isFeatured">Destacado</Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="isHot"
+                checked={watch('isHot')}
+                onCheckedChange={(checked) => {
+                  setValue('isHot', checked === true);
+                }}
+              />
+              <Label htmlFor="isHot">Hot</Label>
+            </div>
           </div>
 
           <Button type="submit" className="w-full">

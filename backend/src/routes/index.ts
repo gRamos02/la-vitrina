@@ -2,6 +2,7 @@ import { Router } from 'express';
 import categoryRoutes from './categories';
 import adminRoutes from './admin';
 import productsRoutes from './products';
+import bannersRoutes from './banners';
 
 const router = Router();
 
@@ -17,6 +18,7 @@ router.get('/healthcheck', (_req, res) => {
 router.use('/admin', adminRoutes);
 router.use('/categories', categoryRoutes);
 router.use('/products', productsRoutes);
+router.use('/banners', bannersRoutes);
 
 // Manejador de rutas no encontradas
 // router.use(':', (_req, res) => {

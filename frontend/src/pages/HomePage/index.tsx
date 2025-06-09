@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAtom } from 'jotai';
 import { categoriesAtom } from '../../atoms';
 import { getAllCategories } from '../../api/categories';
+import { getAllBanners } from '@/api/banners'; // Añadir este import
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -60,39 +61,86 @@ const featuredProducts = [
   }
 ];
 
-// Carrusel de banners
-const banners = [
+// Mover los banners mock a una constante separada
+const mockBanners = [
   {
-    id: 1,
+    id: "1",
     title: "¡Nuevas Figuras Anime!",
     subtitle: "Descubre las últimas figuras de tus series favoritas",
     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=1200&h=500&fit=crop",
     cta: "Ver Colección",
-    bgColor: "from-[#FF3C3B] to-[#FF8C42]"
+    bgColor: "from-[#FF3C3B] to-[#FF8C42]",
+    ctaLink: "/"
   },
   {
-    id: 2,
+    id: "2",
     title: "Manga en Español",
     subtitle: "Los últimos volúmenes ya disponibles",
     image: "https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=1200&h=500&fit=crop",
     cta: "Explorar Manga",
-    bgColor: "from-[#38B6FF] to-[#FF8C42]"
+    bgColor: "from-[#38B6FF] to-[#FF8C42]",
+    ctaLink: "/"
   },
   {
-    id: 3,
+    id: "3",
     title: "Trading Cards",
     subtitle: "Pokémon, Yu-Gi-Oh! y más cartas coleccionables",
     image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=1200&h=500&fit=crop",
     cta: "Ver Cartas",
-    bgColor: "from-[#FF8C42] to-[#FF3C3B]"
+    bgColor: "from-[#FF8C42] to-[#FF3C3B]",
+    ctaLink: "/"
   }
 ];
 
 const HomePage: React.FC = () => {
   const [categories, setCategories] = useAtom(categoriesAtom);
-  const [isLoading, setIsLoading] = useState(false);
+  type Banner = {
+    id: string;
+    title: string;
+    subtitle: string;
+    image: string;
+    cta: string;
+    bgColor: string;
+    ctaLink: string;
+  };
+  
+  const [banners, setBanners] = useState<Banner[]>(mockBanners); // Inicializar con mock data
   const [currentBanner, setCurrentBanner] = useState(0);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Cargar banners de la API
+  useEffect(() => {
+    const loadBanners = async () => {
+      try {
+        const response = await getAllBanners();
+        if (response.success && response.data && response.data.length > 0) {
+          // Mapear la respuesta de la API al formato esperado
+          const activeBanners = response.data
+            .filter(banner => banner.isActive)
+            .map(banner => ({
+              id: banner._id,
+              title: banner.title,
+              subtitle: banner.subtitle || '',
+              image: `http://localhost:3000${banner.image}`, // Ajusta la URL base según tu configuración
+              cta: banner.cta || 'Ver más',
+              bgColor: banner.bgColor || 'from-[#FF3C3B] to-[#FF8C42]',
+              ctaLink: banner.ctaLink || '/'
+            }));
+          
+          // Solo actualizar si hay banners activos
+          if (activeBanners.length > 0) {
+            setBanners(activeBanners);
+          }
+        }
+      } catch (error) {
+        console.error('Error cargando banners:', error);
+        // Mantener los banners mock en caso de error
+      }
+    };
+
+    loadBanners();
+  }, []);
 
   // Auto-rotate banner
   useEffect(() => {
@@ -100,7 +148,7 @@ const HomePage: React.FC = () => {
       setCurrentBanner((prev) => (prev + 1) % banners.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [banners.length]); // Añadir banners.length como dependencia
 
   const handleRefresh = async () => {
     try {
@@ -154,8 +202,14 @@ const HomePage: React.FC = () => {
                   <p className="text-xl mb-8 drop-shadow-md">
                     {banner.subtitle}
                   </p>
-                  <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 font-semibold px-8 py-3">
-                    {banner.cta}
+                  <Button 
+                    size="lg" 
+                    className="bg-white text-gray-900 hover:bg-gray-100 font-semibold px-8 py-3"
+                    asChild
+                  >
+                    <Link to={banner.ctaLink}>
+                      {banner.cta}
+                    </Link>
                   </Button>
                 </div>
               </div>

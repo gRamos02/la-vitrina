@@ -11,6 +11,7 @@ import {
   Users,
   LayoutDashboard,
   Menu,
+  Image, // Añadir este import
 } from "lucide-react"
 import { useState } from 'react'
 
@@ -52,6 +53,18 @@ const AdminLayout = () => {
         <Link to="/admin/products">
           <ShoppingBag className="h-5 w-5" />
           Productos
+        </Link>
+      </Button>
+
+      <Button
+        variant="ghost"
+        className="w-full justify-start gap-2"
+        asChild
+        onClick={() => setOpen(false)}
+      >
+        <Link to="/admin/banners">
+          <Image className="h-5 w-5" />
+          Banners
         </Link>
       </Button>
 

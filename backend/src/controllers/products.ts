@@ -8,28 +8,68 @@ import { ApiResponse } from '../types';
  */
 export const createProduct = async (req: Request, res: Response) => {
   try {
-    const { name, description, price, categories, stock } = req.body;
+    const { 
+      name, 
+      description, 
+      price,
+      originalPrice,
+      categories,
+      stock,
+      isActive,
+      isFeatured,
+      isHot,
+      featuredOrder,
+      tags
+    } = req.body;
 
     // Archivos subidos por multer
     const uploadedImages = req.files as Express.Multer.File[];
-
     const imagePaths = uploadedImages.map((file) => `/uploads/${file.filename}`);
+
+    // Procesar categorías y tags de forma segura
+    let parsedCategories: string[] = [];
+    let parsedTags: string[] = [];
+
+    try {
+      // Manejar categorías que pueden venir como array o string JSON
+      if (categories) {
+        parsedCategories = Array.isArray(categories) 
+          ? categories 
+          : (typeof categories === 'string' ? JSON.parse(categories) : []);
+      }
+
+      // Manejar tags que pueden venir como array o string JSON
+      if (tags) {
+        parsedTags = Array.isArray(tags) 
+          ? tags 
+          : (typeof tags === 'string' ? JSON.parse(tags) : []);
+      }
+    } catch (parseError) {
+      console.error('Error parseando datos:', parseError);
+    }
 
     const newProduct = new Product({
       name,
       description,
       price,
+      originalPrice,
       images: imagePaths,
-      categories,
+      categories: parsedCategories,
       stock: stock || 0,
+      isActive: isActive === 'true',
+      isFeatured: isFeatured === 'true',
+      isHot: isHot === 'true',
+      featuredOrder: featuredOrder || 0,
+      tags: parsedTags
     });
 
     const savedProduct = await newProduct.save();
+    const populatedProduct = await savedProduct.populate('categories');
 
     const response: ApiResponse = {
       success: true,
       message: 'Producto creado correctamente',
-      data: savedProduct,
+      data: populatedProduct,
     };
 
     res.status(201).json(response);
@@ -120,7 +160,12 @@ export const updateProduct = async (req: Request, res: Response) => {
       name: req.body.name,
       description: req.body.description,
       price: req.body.price,
+      originalPrice: req.body.originalPrice || undefined,
       stock: req.body.stock,
+      isActive: req.body.isActive === 'true',
+      isFeatured: req.body.isFeatured === 'true',
+      isHot: req.body.isHot === 'true',
+      featuredOrder: req.body.featuredOrder || 0
     };
 
     // Procesar categorías
@@ -128,6 +173,13 @@ export const updateProduct = async (req: Request, res: Response) => {
       updateData.categories = Array.isArray(req.body['categories[]']) 
         ? req.body['categories[]'] 
         : [req.body['categories[]']];
+    }
+
+    // Procesar tags
+    if (req.body['tags[]']) {
+      updateData.tags = Array.isArray(req.body['tags[]'])
+        ? req.body['tags[]']
+        : [req.body['tags[]']];
     }
 
     // Mantener las imágenes actuales
@@ -145,8 +197,6 @@ export const updateProduct = async (req: Request, res: Response) => {
         ? [...updateData.images, ...newImagePaths]
         : newImagePaths;
     }
-
-    console.log('Datos a actualizar:', updateData);
 
     const updatedProduct = await Product.findByIdAndUpdate(
       id, 
@@ -208,6 +258,45 @@ export const deleteProduct = async (req: Request, res: Response) => {
     res.status(500).json({
       success: false,
       message: 'Error al eliminar producto',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+};
+
+/**
+ * Obtener productos por categoría
+ */
+export const getProductsByCategory = async (req: Request, res: Response) => {
+  try {
+    const { categoryId } = req.params;
+
+    // Validar ID de categoría
+    if (!mongoose.Types.ObjectId.isValid(categoryId)) {
+      res.status(400).json({
+        success: false,
+        message: 'ID de categoría inválido',
+      });
+    }
+
+    // Buscar productos que tengan la categoría especificada
+    // y que estén activos
+    const products = await Product.find({
+      categories: categoryId,
+      isActive: true
+    })
+    .populate('categories')
+    .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      data: products,
+    });
+
+  } catch (error) {
+    console.error('Error al obtener productos por categoría:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener productos por categoría',
       error: error instanceof Error ? error.message : 'Unknown error',
     });
   }

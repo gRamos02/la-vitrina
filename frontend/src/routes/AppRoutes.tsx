@@ -10,6 +10,9 @@ import AdminCategoriesPage from '@/pages/admin/AdminCategory';
 import AdminProductList from '@/pages/admin/Products/AdminProductList';
 import AdminProductForm from '@/pages/admin/Products/AdminProductForm';
 import AdminProductEditForm from '@/pages/admin/Products/AdminProductEditForm';
+import AdminBannerList from '@/pages/admin/Banners/AdminBannerList';
+import AdminBannerForm from '@/pages/admin/Banners/AdminBannerForm';
+import AdminBannerEditForm from '@/pages/admin/Banners/AdminBannerEditForm';
 
 export function AppRoutes() {
   return (
@@ -25,10 +28,16 @@ export function AppRoutes() {
         <Route path="/admin" element={<RequireAuth />}>
           <Route index element={<AdminRedirect />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+
           <Route path="categories" element={<AdminCategoriesPage />} />
+
           <Route path="products" element={<AdminProductList />} />
           <Route path="products/new" element={<AdminProductForm />} />
           <Route path="/admin/products/:id" element={<AdminProductEditForm />} />
+
+          <Route path="banners" element={< AdminBannerList />} />
+          <Route path="banners/new" element={< AdminBannerForm />} />
+          <Route path="banners/:id" element={< AdminBannerEditForm />} />
 
         </Route>
       </Routes>

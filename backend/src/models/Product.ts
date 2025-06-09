@@ -80,6 +80,10 @@ const productSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    originalPrice: {
+      type: Number,
+      min: 0, // Para mostrar descuentos
+    },
     images: [
       {
         type: String, // URL de la imagen
@@ -96,16 +100,67 @@ const productSchema = new mongoose.Schema(
       default: 0,
       min: 0,
     },
+    rating: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
     isActive: {
       type: Boolean,
       default: true,
     },
+    // Campos para destacar productos
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
+    isNew: {
+      type: Boolean,
+      default: false,
+    },
+    isHot: {
+      type: Boolean,
+      default: false,
+    },
+    featuredOrder: {
+      type: Number,
+      default: 0, // Para ordenar productos destacados
+    },
+    tags: [
+      {
+        type: String,
+        trim: true,
+      },
+    ],
   },
   {
-    timestamps: true, // Agrega createdAt y updatedAt automáticamente
+    timestamps: true,
   }
 );
 
-const Product = mongoose.model('Product', productSchema);
+// Índices para mejorar performance
+productSchema.index({ isActive: 1, isFeatured: 1, featuredOrder: 1 });
+productSchema.index({ categories: 1, isActive: 1 });
+productSchema.index({ price: 1 });
+productSchema.index({ rating: -1 });
+productSchema.index({ createdAt: -1 }); // Para productos nuevos
 
+// Middleware para calcular automáticamente isNew
+productSchema.pre('save', function(next) {
+  if (this.isNew === undefined || this.isNew === null) {
+    // Considera nuevo si fue creado en los últimos 30 días
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    this.isNew = this.createdAt > thirtyDaysAgo;
+  }
+  next();
+});
+
+const Product = mongoose.model('Product', productSchema);
 export default Product;
