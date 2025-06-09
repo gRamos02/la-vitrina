@@ -189,7 +189,7 @@ export default function AdminEditProductForm() {
                 {currentImages.map((img, index) => (
                   <div key={index} className="relative group">
                     <img
-                      src={`http://localhost:3000${img}`}
+                      src={`${import.meta.env.VITE_UPLOADS_URL}${img}`}
                       alt={`Producto ${index + 1}`}
                       className="w-full h-32 object-cover rounded-md"
                     />

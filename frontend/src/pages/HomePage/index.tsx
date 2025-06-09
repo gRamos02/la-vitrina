@@ -122,7 +122,7 @@ const HomePage: React.FC = () => {
               id: banner._id,
               title: banner.title,
               subtitle: banner.subtitle || '',
-              image: `http://localhost:3000${banner.image}`, // Ajusta la URL base según tu configuración
+              image: `${import.meta.env.VITE_UPLOADS_URL}${banner.image}`, // Ajusta la URL base según tu configuración
               cta: banner.cta || 'Ver más',
               bgColor: banner.bgColor || 'from-[#FF3C3B] to-[#FF8C42]',
               ctaLink: banner.ctaLink || '/'

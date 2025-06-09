@@ -132,7 +132,7 @@ export default function AdminBannerEditForm() {
               <Label>Imagen actual</Label>
               <div className="relative group">
                 <img
-                  src={`http://localhost:3000${currentImage}`}
+                  src={`${import.meta.env.VITE_UPLOADS_URL}${currentImage}`}
                   alt="Banner"
                   className="w-full h-48 object-cover rounded-md"
                 />
