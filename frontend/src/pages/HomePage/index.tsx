@@ -138,7 +138,7 @@ const HomePage: React.FC = () => {
           className="flex transition-transform duration-500 ease-in-out h-full"
           style={{ transform: `translateX(-${currentBanner * 100}%)` }}
         >
-          {banners.map((banner, index) => (
+          {banners.map((banner) => (
             <div key={banner.id} className="w-full h-full flex-shrink-0 relative">
               <div className={`absolute inset-0 bg-gradient-to-r ${banner.bgColor} opacity-90`} />
               <img 
