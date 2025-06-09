@@ -43,10 +43,10 @@ export default function Navbar() {
         {/* Logo */}
         <div className="flex items-center gap-2">
           <div className="text-2xl font-bold tracking-tight bg-gradient-to-r from-[#FF3C3B] to-[#FF8C42] bg-clip-text text-transparent">
-            La Vitrina
+            ¡La Vitrina!
           </div>
           <div className="hidden sm:block text-xs text-[#666] font-medium">
-            Coleccionables
+            Coleccionables y más...
           </div>
         </div>
 
