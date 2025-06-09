@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import {
   getAllProducts,
-  getProductById
+  getProductById,
+  getProductsByCategory // Agregar este import
 } from '../controllers/products';
 
 const router = Router();
@@ -70,5 +71,38 @@ router.get('/', getAllProducts);
  */
 router.get('/:id', getProductById);
 
+/**
+ * @swagger
+ * /products/category/{categoryId}:
+ *   get:
+ *     summary: Obtener productos por categoría
+ *     tags: [Products]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         required: true
+ *         description: ID de la categoría para filtrar productos
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista de productos de la categoría
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Product'
+ *       400:
+ *         description: ID de categoría inválido
+ *       500:
+ *         description: Error interno del servidor
+ */
+router.get('/category/:categoryId', getProductsByCategory);
 
 export default router;

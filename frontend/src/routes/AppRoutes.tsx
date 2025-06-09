@@ -13,6 +13,8 @@ import AdminProductEditForm from '@/pages/admin/Products/AdminProductEditForm';
 import AdminBannerList from '@/pages/admin/Banners/AdminBannerList';
 import AdminBannerForm from '@/pages/admin/Banners/AdminBannerForm';
 import AdminBannerEditForm from '@/pages/admin/Banners/AdminBannerEditForm';
+import ViewCategory from '@/pages/Categories/ViewCategory';
+import ViewProduct from '@/pages/Products/ViewProduct';
 
 export function AppRoutes() {
   return (
@@ -21,7 +23,12 @@ export function AppRoutes() {
         {/* Rutas públicas con Navbar */}
         <Route element={<ShopLayout />}>
           <Route path="/" element={<HomePage />} />
+          <Route path="category/:id" element={<ViewCategory />} />
+          <Route path="product/:id" element={<ViewProduct />} />
         </Route>
+
+
+
 
         {/* Rutas de administración sin Navbar */}
         <Route path="/admin/login" element={<AdminLoginPage />} />

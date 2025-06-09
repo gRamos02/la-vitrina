@@ -7,6 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { createBanner } from '@/api/banners';
+import { useState } from 'react';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { toast } from 'sonner';
 
 const schema = z.object({
   title: z.string().min(1, 'Título requerido'),
@@ -24,6 +27,7 @@ const schema = z.object({
 type BannerFormValues = z.infer<typeof schema>;
 
 export default function AdminBannerForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
@@ -46,115 +50,134 @@ export default function AdminBannerForm() {
   const navigate = useNavigate();
 
   const onSubmit = async (data: BannerFormValues) => {
-    const formData = new FormData();
-    formData.append('title', data.title);
-    if (data.subtitle) formData.append('subtitle', data.subtitle);
-    formData.append('cta', data.cta || 'Ver más');
-    formData.append('ctaLink', data.ctaLink || '/');
-    formData.append('bgColor', data.bgColor || 'from-[#FF3C3B] to-[#FF8C42]');
-    formData.append('order', String(data.order));
-    formData.append('isActive', String(data.isActive));
-    formData.append('startDate', data.startDate);
-    if (data.endDate) formData.append('endDate', data.endDate);
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', data.title);
+      if (data.subtitle) formData.append('subtitle', data.subtitle);
+      formData.append('cta', data.cta || 'Ver más');
+      formData.append('ctaLink', data.ctaLink || '/');
+      formData.append('bgColor', data.bgColor || 'from-[#FF3C3B] to-[#FF8C42]');
+      formData.append('order', String(data.order));
+      formData.append('isActive', String(data.isActive));
+      formData.append('startDate', data.startDate);
+      if (data.endDate) formData.append('endDate', data.endDate);
 
-    const imageFile = (watch('image') as FileList | null)?.[0];
-    if (imageFile) {
-      formData.append('image', imageFile);
-    }
+      const imageFile = (watch('image') as FileList | null)?.[0];
+      if (imageFile) {
+        formData.append('image', imageFile);
+      }
 
-    const response = await createBanner(formData);
-    if (response.success) {
-      navigate('/admin/banners');
-    } else {
-      console.error(response);
-      alert('Error al crear banner');
+      const response = await createBanner(formData);
+      if (response.success) {
+        toast.success('Banner creado exitosamente');
+        navigate('/admin/banners');
+      } else {
+        toast.error('Error al crear el banner', {
+          description: response.error || 'Ocurrió un error inesperado'
+        });
+      }
+    } catch (error) {
+      toast.error('Error al crear el banner', {
+        description: 'Ocurrió un error inesperado'
+      });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Crear nuevo banner</h2>
+    <>
+      <div className="max-w-2xl mx-auto p-6">
+        <h2 className="text-2xl font-bold mb-4">Crear nuevo banner</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        <div>
-          <Label htmlFor="title">Título</Label>
-          <Input id="title" {...register('title')} />
-          {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
-        </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Label htmlFor="title">Título</Label>
+            <Input id="title" {...register('title')} />
+            {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
+          </div>
 
-        <div>
-          <Label htmlFor="subtitle">Subtítulo</Label>
-          <Input id="subtitle" {...register('subtitle')} />
-        </div>
+          <div>
+            <Label htmlFor="subtitle">Subtítulo</Label>
+            <Input id="subtitle" {...register('subtitle')} />
+          </div>
 
-        <div>
-          <Label htmlFor="image">Imagen del banner</Label>
-          <Input
-            id="image"
-            type="file"
-            accept="image/*"
-            {...register('image')}
-          />
-        </div>
+          <div>
+            <Label htmlFor="image">Imagen del banner</Label>
+            <Input
+              id="image"
+              type="file"
+              accept="image/*"
+              {...register('image')}
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="cta">Texto del botón (CTA)</Label>
-          <Input id="cta" {...register('cta')} />
-        </div>
+          <div>
+            <Label htmlFor="cta">Texto del botón (CTA)</Label>
+            <Input id="cta" {...register('cta')} />
+          </div>
 
-        <div>
-          <Label htmlFor="ctaLink">Enlace del botón</Label>
-          <Input id="ctaLink" {...register('ctaLink')} />
-        </div>
+          <div>
+            <Label htmlFor="ctaLink">Enlace del botón</Label>
+            <Input id="ctaLink" {...register('ctaLink')} />
+          </div>
 
-        <div>
-          <Label htmlFor="bgColor">Color de fondo (Clases Tailwind)</Label>
-          <Input id="bgColor" {...register('bgColor')} />
-        </div>
+          <div>
+            <Label htmlFor="bgColor">Color de fondo (Clases Tailwind)</Label>
+            <Input id="bgColor" {...register('bgColor')} />
+          </div>
 
-        <div>
-          <Label htmlFor="order">Orden</Label>
-          <Input
-            type="number"
-            id="order"
-            {...register('order')}
-            min="0"
-            step="1"
-          />
-          {errors.order && <p className="text-red-500 text-sm">{errors.order.message}</p>}
-        </div>
+          <div>
+            <Label htmlFor="order">Orden</Label>
+            <Input
+              type="number"
+              id="order"
+              {...register('order')}
+              min="0"
+              step="1"
+            />
+            {errors.order && <p className="text-red-500 text-sm">{errors.order.message}</p>}
+          </div>
 
-        <div>
-          <Label htmlFor="startDate">Fecha de inicio</Label>
-          <Input
-            type="date"
-            id="startDate"
-            {...register('startDate')}
-          />
-          {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
-        </div>
+          <div>
+            <Label htmlFor="startDate">Fecha de inicio</Label>
+            <Input
+              type="date"
+              id="startDate"
+              {...register('startDate')}
+            />
+            {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
+          </div>
 
-        <div>
-          <Label htmlFor="endDate">Fecha de finalización (opcional)</Label>
-          <Input
-            type="date"
-            id="endDate"
-            {...register('endDate')}
-          />
-        </div>
+          <div>
+            <Label htmlFor="endDate">Fecha de finalización (opcional)</Label>
+            <Input
+              type="date"
+              id="endDate"
+              {...register('endDate')}
+            />
+          </div>
 
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="isActive"
-            {...register('isActive')}
-          />
-          <Label htmlFor="isActive">Banner activo</Label>
-        </div>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isActive"
+              {...register('isActive')}
+            />
+            <Label htmlFor="isActive">Banner activo</Label>
+          </div>
 
-        <Button type="submit" className="w-full">
-          Crear banner
-        </Button>
-      </form>
-    </div>
+          <Button type="submit" className="w-full">
+            Crear banner
+          </Button>
+        </form>
+      </div>
+
+      <LoadingSpinner 
+        isOpen={isSubmitting}
+        text="Creando banner..."
+        size="lg"
+      />
+    </>
   );
 }

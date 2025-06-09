@@ -5,6 +5,7 @@ export interface Category {
   description?: string;
   icon?: string;
   parent?: Category | string | null;
+  children?: Category[];
 }
 export interface ApiResponse<T = any> {
   success: boolean;

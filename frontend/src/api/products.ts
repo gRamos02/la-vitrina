@@ -75,3 +75,16 @@ export const deleteProduct = async (id: string) => {
     return { success: false, error: 'Error de red' };
   }
 };
+
+export const getProductsByCategory = async (categoryId: string) => {
+  try {
+    const res = await fetch(`${baseApiUrl}/products/category/${categoryId}`);
+    return await res.json();
+  } catch (error) {
+    console.error('Error fetching products by category:', error);
+    return {
+      success: false,
+      error: 'Error al obtener productos de la categoría',
+    };
+  }
+};

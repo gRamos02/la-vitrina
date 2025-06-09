@@ -4,6 +4,7 @@ import { useLoadCategories } from '@/hooks/useCategories';
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import type { Category } from '@/vite-env';
 
 export default function SecondaryNav() {
@@ -53,15 +54,17 @@ function CategoryItem({ category }: { category: Category & { children?: Category
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <Button
-        variant="ghost"
-        className="text-[#f5f5f5] hover:text-[#38B6FF] px-2 font-medium flex items-center gap-1"
-      >
-        {category.name}
-        {category.children && category.children.length > 0 && (
-          <ChevronRight className="w-4 h-4" />
-        )}
-      </Button>
+      <Link to={`/category/${category._id}`}>
+        <Button
+          variant="ghost"
+          className="text-[#f5f5f5] hover:text-[#38B6FF] px-2 font-medium flex items-center gap-1"
+        >
+          {category.name}
+          {category.children && category.children.length > 0 && (
+            <ChevronRight className="w-4 h-4" />
+          )}
+        </Button>
+      </Link>
 
       {/* Submenú */}
       {open && category.children && category.children.length > 0 && (

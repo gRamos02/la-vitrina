@@ -3,6 +3,7 @@ import { useAtom } from 'jotai';
 import { categoriesAtom } from '../../atoms';
 import { getAllCategories } from '../../api/categories';
 import { getAllBanners } from '@/api/banners'; // Añadir este import
+import { getAllProducts } from '@/api/products';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +21,8 @@ import {
   Shield,
   RefreshCw
 } from 'lucide-react';
-import type { Category } from '@/vite-env';
+import type { Category, Product } from '@/vite-env';
+import { ProductCard } from '@/components/ProductCard';
 
 // Mock data para productos destacados
 const featuredProducts = [
@@ -106,8 +108,10 @@ const HomePage: React.FC = () => {
   
   const [banners, setBanners] = useState<Banner[]>(mockBanners); // Inicializar con mock data
   const [currentBanner, setCurrentBanner] = useState(0);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
   // Cargar banners de la API
   useEffect(() => {
@@ -142,6 +146,29 @@ const HomePage: React.FC = () => {
     loadBanners();
   }, []);
 
+  // Cargar productos destacados
+  const loadProducts = async () => {
+    try {
+      setIsLoadingProducts(true);
+      const response = await getAllProducts();
+      if (response.success && response.data) {
+        // Tomar los primeros 4 productos activos
+        const products = response.data
+          .filter((product: { isActive: any; }) => product.isActive)
+          .slice(0, 4);
+        setFeaturedProducts(products);
+      }
+    } catch (error) {
+      console.error('Error cargando productos:', error);
+    } finally {
+      setIsLoadingProducts(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
   // Auto-rotate banner
   useEffect(() => {
     const timer = setInterval(() => {
@@ -162,7 +189,7 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const toggleFavorite = (productId: number) => {
+  const toggleFavorite = (productId: string) => {
     setFavorites(prev => 
       prev.includes(productId) 
         ? prev.filter(id => id !== productId)
@@ -302,12 +329,12 @@ const HomePage: React.FC = () => {
               <p className="text-gray-600">Los favoritos de nuestros coleccionistas</p>
             </div>
             <Button 
-              onClick={handleRefresh}
-              disabled={isLoading}
+              onClick={() => loadProducts()}
+              disabled={isLoadingProducts}
               variant="outline"
               className="border-[#38B6FF] text-[#38B6FF] hover:bg-[#38B6FF] hover:text-white"
             >
-              {isLoading ? (
+              {isLoadingProducts ? (
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
               ) : (
                 <RefreshCw className="w-4 h-4 mr-2" />
@@ -316,69 +343,46 @@ const HomePage: React.FC = () => {
             </Button>
           </div>
 
+          {/* Featured products grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <Card key={product.id} className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-                <div className="relative overflow-hidden">
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.isNew && (
-                    <Badge className="absolute top-2 left-2 bg-[#FF3C3B] hover:bg-[#FF3C3B]">
-                      Nuevo
-                    </Badge>
-                  )}
-                  {product.isHot && (
-                    <Badge className="absolute top-2 left-2 bg-[#FF8C42] hover:bg-[#FF8C42]">
-                      🔥 Popular
-                    </Badge>
-                  )}
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    className={`absolute top-2 right-2 ${
-                      favorites.includes(product.id)
-                        ? 'text-[#FF3C3B] bg-white'
-                        : 'text-gray-400 bg-white/80'
-                    } hover:bg-white`}
-                    onClick={() => toggleFavorite(product.id)}
-                  >
-                    <Heart className={`w-4 h-4 ${favorites.includes(product.id) ? 'fill-current' : ''}`} />
-                  </Button>
-                </div>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="secondary" className="text-xs">
-                      {product.category}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm text-gray-600">{product.rating}</span>
-                    </div>
-                  </div>
-                  <CardTitle className="text-lg leading-tight">{product.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-[#FF3C3B]">
-                        ${product.price}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-sm text-gray-500 line-through">
-                          ${product.originalPrice}
-                        </span>
-                      )}
-                    </div>
-                    <Button size="sm" className="bg-[#38B6FF] hover:bg-[#FF8C42] transition-colors">
-                      <ShoppingCart className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {isLoadingProducts ? (
+              // Mostrar skeleton loader mientras carga
+              Array(4).fill(0).map((_, index) => (
+                <Card key={index} className="animate-pulse">
+                  <div className="h-48 bg-gray-200"></div>
+                  <CardContent className="p-4">
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : featuredProducts.length > 0 ? (
+              featuredProducts.map((product) => (
+                <ProductCard
+                  key={product._id}
+                  id={product._id}
+                  name={product.name}
+                  price={product.price}
+                  originalPrice={product.originalPrice}
+                  image={`${import.meta.env.VITE_UPLOADS_URL}${product.images[0]}`}
+                  category={
+                    typeof product.categories?.[0] === 'object' && product.categories?.[0] !== null
+                      ? (product.categories[0] as { name: string }).name
+                      : product.categories?.[0] || 'Sin categoría'
+                  }
+                  rating={product.rating}
+                  isNew={product.isNew}
+                  isHot={product.isHot}
+                  isFavorite={favorites.includes(product._id)}
+                  onAddToCart={(id) => console.log('Añadir al carrito:', id)}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600 mb-4">No hay productos destacados disponibles</p>
+              </div>
+            )}
           </div>
         </div>
       </section>
