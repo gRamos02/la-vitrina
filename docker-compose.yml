@@ -21,7 +21,9 @@ services:
     depends_on:
       - mongo
     volumes:
-      - uploads_data:/app/uploads  # Agregar esta línea
+      - uploads_data:/app/uploads
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/la-vitrina
 
   mongo:
     image: mongo:7
@@ -31,7 +33,11 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=la-vitrina
 
 volumes:
   mongo_data:
-  uploads_data:  # Agregar esta línea
+    name: la-vitrina-mongo-data
+  uploads_data:
+    name: la-vitrina-uploads-data
